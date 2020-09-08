@@ -9,8 +9,8 @@ workflow test_metabat2 {
     def input = []
     input = [
         [ id: 'test' ],
-        file("input/contigs.fa", checkIfExists: true),
-        file("input/depth.txt", checkIfExists: true)
+        file("$baseDir/input/contigs.fa", checkIfExists: true),
+        file("$baseDir/input/depth.txt", checkIfExists: true)
     ]
 
     METABAT2 ( input,

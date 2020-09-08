@@ -8,8 +8,8 @@ workflow test_coconet_run {
     def input = []
     input = [
         [ id: 'test' ],
-        file("input/contigs.fa", checkIfExists: true),
-        file("input/sample*.bam", checkIfExists: true)
+        file("$baseDir/input/contigs.fa", checkIfExists: true),
+        file("$baseDir/input/sample*.bam", checkIfExists: true)
     ]
 
     COCONET_RUN (

@@ -9,8 +9,8 @@ workflow test_maxbin2 {
     def input = []
     input = [
         [ id: 'test' ],
-        file("input/contigs.fa", checkIfExists: true),
-        file("input/coverage.tsv", checkIfExists: true)
+        file("$baseDir/input/contigs.fa", checkIfExists: true),
+        file("$baseDir/input/coverage.tsv", checkIfExists: true)
     ]
 
     MAXBIN2 (

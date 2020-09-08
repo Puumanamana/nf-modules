@@ -9,6 +9,7 @@ process COCONET_RUN {
         saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:meta.id) }
 
     container 'nakor/coconet'
+    // Submit bioconda release once it's published
     // conda (params.conda ? "bioconda::coconet-binning=0.54" : null)
     
     input:
@@ -16,7 +17,8 @@ process COCONET_RUN {
     val options
 
     output:
-    tuple val(meta), path("coconet_*.csv"), emit: bins
+    tuple val(meta), path("coconet_bins-*.csv"), emit: bins
+    tuple val(meta), path("coconet*"), emit: all
     path "*.version.txt", emit: version
 
     script:
@@ -25,16 +27,9 @@ process COCONET_RUN {
     def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"
     def coverage_arg = coverage[0].getExtension() == 'bam' ? "--bam ${coverage}" : "--h5 ${coverage}"
     """
-    coconet run $ioptions.args --fasta $fasta $coverage_arg \\
-    --output $prefix \\
-    --threads $task.cpus \\
-    --min-ctg-len ${params.coconet.min_ctg_len} \\
-    --min-prevalence ${params.coconet.min_prevalence} \\
-    --min-mapping-quality ${params.coconet.min_mapping_quality} \\
-    --min-aln-coverage ${params.coconet.min_aln_coverage}
+    coconet run $ioptions.args --fasta $fasta $coverage_arg --output coconet-$prefix --threads $task.cpus
+    cp coconet-$prefix/bins_*.csv coconet_bins-${prefix}.csv
 
-    cp $prefix/bins_*.csv coconet_${prefix}.csv
-        
     coconet --version > ${software}.version.txt
     """
 }

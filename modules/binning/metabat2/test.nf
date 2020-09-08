@@ -2,15 +2,15 @@
 
 nextflow.enable.dsl = 2
 
-include { METABAT2 } from '../main.nf' addParams(min_ctg_len: 1500)
+include { METABAT2 } from './process.nf'
 
 
 workflow test_metabat2 {
     def input = []
     input = [
         [ id: 'test' ],
-        file("${baseDir}/input/contigs.fa", checkIfExists: true),
-        file("${baseDir}/input/depth.txt", checkIfExists: true)
+        file("input/contigs.fa", checkIfExists: true),
+        file("input/depth.txt", checkIfExists: true)
     ]
 
     METABAT2 ( input,

@@ -1,5 +1,3 @@
-nextflow.enable.dsl = 2
-
 include { initOptions } from '../functions'
 
 process DL_VIRAL_PROTEIN_DB {
@@ -40,27 +38,4 @@ process DIAMOND_BLASTX {
         | awk '{OFS=","}{print \$2,\$1}' > diamond_ctg_hit_counts_${meta.id}.txt
     cut -d, -f1 diamond_ctg_hit_counts_${meta.id}.txt > diamond-${meta.id}.txt
     """
-}
-
-workflow diamond_blastx {
-    take:
-    contigs // tuple (meta, fasta)
-    options
-
-    main:
-    vir_prot_db = file(params.vir_prot_db)
-    if(!vir_prot_db.exists()) {
-        vir_prot_db = DL_VIRAL_PROTEIN_DB()
-    }
-    DIAMOND_BLASTX(contigs, vir_prot_db, options)
-
-    emit:
-    all = DIAMOND_BLASTX.out.all
-    ctg_ids = DIAMOND_BLASTX.out.ctg_ids
-}
-
-workflow test {
-    fasta = Channel.fromPath("$baseDir/../../test_data/sample*.fasta")
-        .map{[[id: it.getSimpleName()], it]}
-    diamond_blastx(fasta, [:])
 }

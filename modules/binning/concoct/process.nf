@@ -1,5 +1,15 @@
 include { initOptions; saveFiles ; getSoftwareName } from './functions'
 
+/*
+Main parameters:
+ --length_threshold: 
+ --clusters: specify maximal number of clusters for VGMM, default 400
+ --no_original_data: By default the original data is saved to disk. 
+                     For big datasets, especially when a large k is used 
+                     for compositional data, this file can become very large. 
+                     Use this tag if you don't want to save the original data.
+*/
+
 process CONCOCT {
     tag {"${meta.id}"}
     label 'process_medium'
@@ -25,12 +35,9 @@ process CONCOCT {
     def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"    
     """
     concoct $ioptions.args --threads $task.cpus \\
-        --composition_file ${fasta} --coverage_file ${coverage} \\
-        --clusters ${params.concoct.max_clusters} \\
-        --length_threshold ${params.concoct.min_ctg_len} \\
-        --no_original_data
+        --composition_file ${fasta} --coverage_file ${coverage}
 
-    tail -n+2 clustering_gt${params.concoct.min_ctg_len}.csv > concoct_${meta.id}.csv
+    tail -n+2 clustering_gt*.csv > concoct_${meta.id}.csv
 
     concoct --version > ${software}.version.txt
     """

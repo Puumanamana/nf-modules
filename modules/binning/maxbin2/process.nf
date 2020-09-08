@@ -1,5 +1,12 @@
 include { initOptions; saveFiles ; getSoftwareName } from './functions'
 
+/*
+# Main parameters
+
+-min_contig_length     minimum contig length. Default 1000
+-prob_threshold        probability threshold for EM final classification. Default 0.9
+*/
+
 process MAXBIN2 {
     tag {"${meta.id}"}
     label 'process_medium'
@@ -17,7 +24,7 @@ process MAXBIN2 {
     val options
 
     output:
-    tuple val(meta), path('*.csv'), emit: bins
+    tuple val(meta), path('maxbin2-*.csv'), emit: bins
     path "*.version.txt", emit: version
     
     script:
@@ -30,14 +37,13 @@ process MAXBIN2 {
         .replaceFirst('abund1', 'abund')
     """
     run_MaxBin.pl -contig $fasta $cov_arg \
-         -out maxbin \
-         -min_contig_length ${params.maxbin2.min_ctg_len} \
+         -out maxbin-$prefix \
          -thread $task.cpus
 
     # Make assignment file
-    for fa in `ls maxbin.*.fasta`; do
+    for fa in `ls maxbin-${prefix}*.fasta`; do
         bin_id=\$(echo \$fa | cut -d '.' -f2 | sed 's/^0*//')
-        grep '^>' \$fa | cut -c 2- | awk -v b=\$bin_id '{print \$1","b}' >> maxbin2_${meta.id}.csv
+        grep '^>' \$fa | cut -c 2- | awk -v b=\$bin_id '{print \$1","b}' >> maxbin2-${prefix}.csv
     done
 
     run_MaxBin.pl -v | head -1 > ${software}.version.txt

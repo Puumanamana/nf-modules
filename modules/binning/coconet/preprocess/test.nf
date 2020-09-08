@@ -2,9 +2,9 @@
 
 nextflow.enable.dsl = 2
 
-include { COCONET_RUN } from './process.nf'
+include { COCONET_PREPROCESS } from './process.nf'
 
-workflow test_coconet_run {
+workflow test_coconet_preprocess {
     def input = []
     input = [
         [ id: 'test' ],
@@ -12,13 +12,13 @@ workflow test_coconet_run {
         file("$baseDir/input/sample*.bam", checkIfExists: true)
     ]
 
-    COCONET_RUN (
+    COCONET_PREPROCESS (
         input,
-        [ publish_dir:'test_coconet_run' ]
+        [ publish_dir:'test_coconet_preprocess' ]
     )
 }
 
 
 workflow {
-    test_coconet_run()
+    test_coconet_preprocess()
 }

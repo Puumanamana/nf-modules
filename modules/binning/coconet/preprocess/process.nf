@@ -1,6 +1,6 @@
 include { initOptions; saveFiles ; getSoftwareName } from './functions'
 
-process COCONET_RUN {
+process COCONET_PREPROCESS {
     tag {"${meta.id}"}
     label 'process_medium'
 
@@ -17,9 +17,9 @@ process COCONET_RUN {
     val options
 
     output:
-    tuple val(meta), path("coconet_bins-*.csv"), emit: bins
-    tuple val(meta), path("coconet*"), emit: all
-    tuple val(meta), path("coconet*.log"), emit: log
+    tuple val(meta), path("output/*.fasta"), emit: fasta
+    tuple val(meta), path("output/*.h5"), emit: h5
+    tuple val(meta), path("output/*.log"), emit: log
     path "*.version.txt", emit: version
 
     script:
@@ -28,8 +28,7 @@ process COCONET_RUN {
     def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"
     def coverage_arg = coverage[0].getExtension() == 'bam' ? "--bam ${coverage}" : "--h5 ${coverage}"
     """
-    coconet run $ioptions.args --fasta $fasta $coverage_arg --output coconet-$prefix --threads $task.cpus
-    cp coconet-$prefix/bins_*.csv coconet_bins-${prefix}.csv
+    coconet preprocess $ioptions.args --fasta $fasta $coverage_arg --output output --threads $task.cpus
 
     coconet --version > ${software}.version.txt
     """

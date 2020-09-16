@@ -1,10 +1,10 @@
 nextflow.enable.dsl = 2
 
-include { DL_PFAM_DB; VIRALVERIFY } from './process.nf'
+include { VIRALVERIFY_DB; VIRALVERIFY } from './process'
 
 
 workflow test_db {
-    DL_PFAM_DB(
+    VIRALVERIFY_DB(
         [publish_dir: 'test_db']
     )
 }
@@ -19,4 +19,9 @@ workflow test_viralverify {
         db,
         [publish_dir: 'test_viralverify']
     )
+}
+
+workflow {
+    test_db()
+    test_viralverify()
 }

@@ -1,10 +1,11 @@
-nextflow.enable.dsl = 2
+include { initOptions; saveFiles ; getSoftwareName } from './functions'
 
-include { initOptions } from './functions'
 
 process DL_VIRSORTER_DB {
-    publishDir params.dbdir, mode: 'copy'
-
+    label 'process_low'
+    publishDir "${params.outdir}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:"") }
     output:
     path 'vs_db'
 
@@ -18,32 +19,36 @@ process DL_VIRSORTER_DB {
 
 process VIRSORTER {
     tag {"${meta.id}"}
+    label 'process_medium'
+    publishDir "${params.outdir}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:"") }
     container 'nakor/virsorter'
     
-    publishDir params.outdir+"/virsorter", mode: "copy"
-
     input:
     tuple val(meta), path(fasta)
     path vs_db
     val options
 
     output:
-    tuple val(meta), path('vs_out'), emit: all
-    tuple val(meta), path ("virsorter-${meta.id}.txt"), emit: ctg_ids
+    tuple val(meta), path("virsorter-output-*"), emit: all
+    tuple val(meta), path ("virsorter-*.txt"), emit: ctg_ids
     
     script:
     def ioptions = initOptions(options)
+    def software = getSoftwareName(task.process)
+    def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"
     """
     wrapper_phage_contigs_sorter_iPlant.pl $ioptions.args \
         -f $fasta \
         --ncpu $task.cpus \
-        --wdir vs_out \
+        --wdir virsorter-output-$prefix \
         --data-dir $vs_db --db 1
     
-    grep "^VIRSorter" vs_out/VIRSorter_global-phage-signal.csv \
+    grep "^VIRSorter" virsorter-output-$prefix/VIRSorter_global-phage-signal.csv \
         | cut -d, -f1 \
         | sed 's/VIRSorter_//' \
         | sed 's/-circular//' \
-        > virsorter-${meta.id}.txt
+        > virsorter-${prefix}.txt
     """
 }

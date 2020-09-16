@@ -1,6 +1,6 @@
 nextflow.enable.dsl = 2
 
-include { DL_VIBRANT_DB; VIBRANT } from './process.nf'
+include { VIBRANT_DB; VIBRANT } from './process'
 
 
 workflow vibrant {
@@ -11,7 +11,7 @@ workflow vibrant {
     main:
     vibrant_data = [db: file("${params.vibrant_db}/databases"), files: file("${params.vibrant_db}/files")]
     if(!vibrant_data.db.exists()) {
-        vibrant_data = DL_VIBRANT_DB()
+        vibrant_data = VIBRANT_DB()
     }
     VIBRANT(contigs, vibrant_data.db, vibrant_data.files, options)
 

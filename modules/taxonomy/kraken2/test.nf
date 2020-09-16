@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
+include { KRAKEN2_BUILD; KRAKEN2 } from './process'
 
-include { KRAKEN2_BUILD; KRAKEN2 } from './process.nf'
 
 workflow test_dl_db {
     KRAKEN2_BUILD([

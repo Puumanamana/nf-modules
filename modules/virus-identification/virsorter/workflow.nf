@@ -1,6 +1,6 @@
 nextflow.enable.dsl = 2
 
-include {DL_VIRSORTER_DB; VIRSORTER} from './process.nf'
+include {DL_VIRSORTER_DB; VIRSORTER} from './process'
 
 workflow virsorter {
     take:

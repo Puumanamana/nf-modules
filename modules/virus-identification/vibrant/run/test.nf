@@ -1,10 +1,10 @@
 nextflow.enable.dsl = 2
 
-include { DL_VIBRANT_DB; VIBRANT } from './process.nf'
+include { VIBRANT_DB; VIBRANT } from './process'
 
 
 workflow test_dl_db {
-    DL_VIBRANT_DB([publish_dir: 'test_db'])
+    VIBRANT_DB([publish_dir: 'test_db'])
 }
 
 
@@ -12,7 +12,7 @@ workflow test_vibrant {
     fasta = Channel.fromPath("$baseDir/input/sample*.fasta")
         .map{[[id: it.getSimpleName()], it]}
     db = Channel.fromPath()
-    vibrant(
+    VIBRANT(
         fasta,
         db,
         [publish_dir: 'test_vibrant']

@@ -1,8 +1,7 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
-
-include { TAXONKIT_LINEAGE } from './process.nf'
+include { TAXONKIT_LINEAGE } from './process'
 
 
 workflow test_taxonkit_lineage {

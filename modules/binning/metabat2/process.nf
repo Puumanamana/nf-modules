@@ -37,15 +37,15 @@ process METABAT2 {
     def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"
     """
     gzip -c $fasta > contigs.fasta.gz && \\
-    metabat2 \\
+    metabat2 $ioptions.args \\
         --inFile contigs.fasta.gz \\
         --abdFile $coverage \\
         --outFile metabat2-${meta.id}.csv \\
         --saveCls \\
         --numThreads $task.cpus && \\
-    rm contigs.fasta.gz    
-
     sed -i 's/\\t/,/' metabat2-${meta.id}.csv
+
+    rm contigs.fasta.gz
 
     metabat2 -h 2>&1 | head | grep version > ${software}.version.txt
     """

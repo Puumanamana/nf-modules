@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
+include { KAIJU_BUILD; KAIJU } from './process' addParams(kaiju_db_name: 'viruses')
 
-include { KAIJU_BUILD; KAIJU } from './process.nf' addParams(kaiju_db_name: 'viruses')
 
 workflow test_dl_db {
     KAIJU_BUILD([ publish_dir:'test_kraken_db' ])

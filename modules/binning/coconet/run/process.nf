@@ -19,16 +19,23 @@ process COCONET_RUN {
     output:
     tuple val(meta), path("coconet_bins-*.csv"), emit: bins
     tuple val(meta), path("coconet*"), emit: all
-    tuple val(meta), path("coconet*.log"), emit: log
+    tuple val(meta), path("coconet*/*.log"), emit: log
     path "*.version.txt", emit: version
 
     script:
     def ioptions = initOptions(options)
     def software = getSoftwareName(task.process)
     def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"
-    def coverage_arg = coverage[0].getExtension() == 'bam' ? "--bam ${coverage}" : "--h5 ${coverage}"
+
+    def cov_list = coverage instanceof List ? coverage : [coverage]
+    def cov_flag = cov_list[0].getExtension() == 'bam' ? "--bam" : "--h5"    
     """
-    coconet run $ioptions.args --fasta $fasta $coverage_arg --output coconet-$prefix --threads $task.cpus
+    coconet run $ioptions.args \\
+        --fasta $fasta \\
+        $cov_flag ${cov_list.join(' ')} \\
+        --output coconet-$prefix \\
+        --thread $task.cpus
+
     cp coconet-$prefix/bins_*.csv coconet_bins-${prefix}.csv
 
     coconet --version > ${software}.version.txt

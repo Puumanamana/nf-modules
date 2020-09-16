@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-include { METABAT2 } from './process.nf'
+include { METABAT2 } from './process'
 
 
 workflow test_metabat2 {

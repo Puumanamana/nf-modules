@@ -36,9 +36,10 @@ process MAXBIN2 {
         .join(' ')
         .replaceFirst('abund1', 'abund')
     """
-    run_MaxBin.pl -contig $fasta $cov_arg \
-         -out maxbin-$prefix \
-         -thread $task.cpus
+    run_MaxBin.pl $ioptions.args \\
+        -contig $fasta $cov_arg \\
+        -out maxbin-$prefix \\
+        -thread $task.cpus
 
     # Make assignment file
     for fa in `ls maxbin-${prefix}*.fasta`; do

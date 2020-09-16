@@ -1,4 +1,4 @@
-include { initOptions } from '../functions'
+include { initOptions } from './functions'
 
 
 // Needs to be more generic

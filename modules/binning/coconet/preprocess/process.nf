@@ -26,9 +26,15 @@ process COCONET_PREPROCESS {
     def ioptions = initOptions(options)
     def software = getSoftwareName(task.process)
     def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"
-    def coverage_arg = coverage[0].getExtension() == 'bam' ? "--bam ${coverage}" : "--h5 ${coverage}"
+
+    def cov_list = coverage instanceof List ? coverage : [coverage]
+    def cov_flag = cov_list[0].getExtension() == 'bam' ? "--bam" : "--h5"
     """
-    coconet preprocess $ioptions.args --fasta $fasta $coverage_arg --output output --threads $task.cpus
+    coconet preprocess $ioptions.args \\
+        --fasta $fasta \\
+        $cov_flag ${cov_list.join(' ')} \\
+        --output output \\
+        --thread $task.cpus
 
     coconet --version > ${software}.version.txt
     """

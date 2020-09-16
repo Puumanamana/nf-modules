@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-include { MAXBIN2 } from './process.nf'
+include { MAXBIN2 } from './process'
 
 
 workflow test_maxbin2 {

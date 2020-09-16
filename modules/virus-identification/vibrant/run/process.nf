@@ -1,7 +1,11 @@
-include { initOptions } from './functions'
+include { initOptions; saveFiles ; getSoftwareName } from './functions'
 
-process DL_VIBRANT_DB {
-    publishDir params.dbdir, mode: 'copy'
+process VIBRANT_DB {
+    label "process_low"
+    publishDir "${params.outdir}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:"") }
+
     container 'nakor/vibrant'
     
     output:
@@ -43,9 +47,13 @@ process DL_VIBRANT_DB {
     """
 }
 
-process VIBRANT {
+
+
+process VIBRANT_RUN {
     tag {"${meta.id}"}
-    publishDir params.outdir+"/vibrant", mode: "copy"
+    publishDir "${params.outdir}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:meta.id) }
     container 'nakor/vibrant'
     
 	input:
@@ -56,14 +64,20 @@ process VIBRANT {
 
 	output:
     tuple val(meta), path('*'), emit: all
-    tuple val(meta), path("vibrant-${meta.id}.txt"), emit: ctg_ids
+    tuple val(meta), path("vibrant-*.txt"), emit: ctg_ids
+    path "*.version.txt", emit: log
 
     script:
     def ioptions = initOptions(options)
+    def software = getSoftwareName(task.process)
+    def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"
+    
     def radical = "${fasta.getSimpleName()}"
     def result_path = "VIBRANT_${radical}/VIBRANT_results_${radical}/VIBRANT_machine_${radical}.tsv"
     """
     VIBRANT_run.py $ioptions.args -i $fasta -t $task.cpus -d $vibrant_db -m $vibrant_files
-    awk -F"\\t" '\$2=="virus"' $result_path | cut -d ' ' -f 1 >> vibrant-${meta.id}.txt
+    awk -F"\\t" '\$2=="virus"' $result_path | cut -d ' ' -f 1 >> vibrant-${prefix}.txt
+
+    VIBRANT_run.py --version | sed 's/VIBRANT //' > ${software}.version.txt
     """
 }

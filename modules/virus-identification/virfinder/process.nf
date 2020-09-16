@@ -1,11 +1,12 @@
-nextflow.enable.dsl = 2
+include { initOptions; saveFiles ; getSoftwareName } from './functions'
 
-include { initOptions } from './functions'
 
 process VIRFINDER {
     tag {"${meta.id}"}
     label 'process_medium'
-    publishDir "${params.outdir}/virfinder", mode: 'copy'
+    publishDir "${params.outdir}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:"") }
     
     container 'nakor/virfinder'
 

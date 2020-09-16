@@ -1,6 +1,6 @@
 nextflow.enable.dsl = 2
 
-include { DL_PFAM_DB; VIRALVERIFY } from './process.nf'
+include { VIRALVERIFY_DB; VIRALVERIFY } from './process'
 
 
 workflow viralverify {
@@ -11,7 +11,7 @@ workflow viralverify {
     main:
     pfam_db = file(params.pfam_db)
     if( !pfam_db.exists() ) {
-        pfam_db = DL_PFAM_DB()
+        pfam_db = VIRALVERIFY_DB()
     }
     VIRALVERIFY(contigs, pfam_db, options)
 

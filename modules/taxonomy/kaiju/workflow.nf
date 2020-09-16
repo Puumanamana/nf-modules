@@ -1,6 +1,6 @@
 nextflow.enable.dsl = 2
-
 include { KAIJU } from './process'
+
 
 workflow {
     input = file(params.fasta, checkIfExists: true)

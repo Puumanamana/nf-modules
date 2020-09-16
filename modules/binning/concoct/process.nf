@@ -18,7 +18,7 @@ process CONCOCT {
         mode: params.publish_dir_mode,
         saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:meta.id) }
     
-    container "flowcraft/concoct"
+    container "quay.io/biocontainers/concoct:1.1.0--py38h7be5676_2"
     conda (params.conda ? "bioconda::concoct=1.1.0" : null)
 
     input:
@@ -34,8 +34,10 @@ process CONCOCT {
     def software = getSoftwareName(task.process)
     def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"    
     """
-    concoct $ioptions.args --threads $task.cpus \\
-        --composition_file ${fasta} --coverage_file ${coverage}
+    concoct $ioptions.args \\
+        --threads $task.cpus \\
+        --composition_file ${fasta} \\
+        --coverage_file ${coverage}
 
     tail -n+2 clustering_gt*.csv > concoct_${meta.id}.csv
 

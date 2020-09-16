@@ -1,8 +1,12 @@
-include { initOptions } from './functions'
+include { initOptions; saveFiles ; getSoftwareName } from './functions'
 
-process DL_PFAM_DB {
-    tag {"download_pfam_db"}
-    publishDir params.dbdir, mode: 'copy'
+
+process VIRALVERIFY_DB {
+    label 'process_low'
+    publishDir "${params.outdir}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:"") }
+    
     container 'nakor/virus_extraction'
     
     output:
@@ -17,7 +21,10 @@ process DL_PFAM_DB {
 
 process VIRALVERIFY {
     tag {"${meta.id}"}
-    publishDir params.outdir+"/viralverify", mode: "copy"
+    label 'process_medium'
+    publishDir "${params.outdir}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:"") }
     container 'nakor/virus_extraction'
     
 	input:
@@ -31,9 +38,13 @@ process VIRALVERIFY {
 
     script:
     def ioptions = initOptions(options)
+    def software = getSoftwareName(task.process)
+    def prefix   = ioptions.suffix ? "${meta.id}${ioptions.suffix}" : "${meta.id}"
     """
     viralverify.py $ioptions.args -f ${fasta} -o ./ --hmm ${pfam_db} -t $task.cpus
-    cat Prediction_results_fasta/*virus* | grep '^>' | cut -c2- > viralverify-${meta.id}.txt
+    cat Prediction_results_fasta/*virus* | grep '^>' | cut -c2- > viralverify-${prefix}.txt
+
+    echo -1 > ${software}.version.txt # No version yet
     """
 }
 

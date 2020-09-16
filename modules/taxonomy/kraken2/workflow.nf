@@ -1,6 +1,6 @@
 nextflow.enable.dsl = 2
+include { KRAKEN2 } from './process'
 
-include { KRAKEN2 } from './main'
 
 workflow {
     input = file(params.fasta, checkIfExists: true)

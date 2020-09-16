@@ -1,6 +1,7 @@
 nextflow.enable.dsl = 2
 
-include { DL_VIRSORTER2_DB; VIRSORTER2 } from './process.nf'
+include { VIRSORTER2_SETUP } from './setup/process'
+include { VIRSORTER2_RUN } from './run/process'
 
 
 workflow virsorter2 {
@@ -11,12 +12,12 @@ workflow virsorter2 {
     main:
     vs2_db = file(params.vs2_db)
     if(!vs2_db.exists()) {
-        vs2_db = DL_VIRSORTER2_DB()
+        vs2_db = VIRSORTER2_SETUP()
     }
-    VIRSORTER2(contigs, vs2_db, options)
+    VIRSORTER2_RUN(contigs, vs2_db, options)
 
     emit:
-    all = VIRSORTER2.out.all
-    ctg_ids = VIRSORTER2.out.ctg_ids
+    all = VIRSORTER2_RUN.out.all
+    ctg_ids = VIRSORTER2_RUN.out.ctg_ids
 }
 

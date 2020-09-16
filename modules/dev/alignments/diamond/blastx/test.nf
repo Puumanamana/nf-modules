@@ -1,6 +1,7 @@
 nextflow.enable.dsl = 2
 
-include {DL_PROTEIN_DB; DIAMOND_BLASTX} from ./process.nf
+include {DL_PROTEIN_DB; DIAMOND_BLASTX} from './process'
+
 
 workflow test_db_dl {
     DL_PROTEIN_DB()

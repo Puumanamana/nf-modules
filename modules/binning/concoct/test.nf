@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-include { CONCOCT } from './process.nf'
+include { CONCOCT } from './process'
 
 
 workflow test_concoct {

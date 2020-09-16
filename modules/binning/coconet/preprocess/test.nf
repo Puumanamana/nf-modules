@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-include { COCONET_PREPROCESS } from './process.nf'
+include { COCONET_PREPROCESS } from './process'
 
 workflow test_coconet_preprocess {
     def input = []

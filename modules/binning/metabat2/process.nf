@@ -20,7 +20,7 @@ process METABAT2 {
         mode: params.publish_dir_mode,
         saveAs: { filename -> saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:meta.id) }
     
-    container 'nanozoo/metabat2'
+    container 'quay.io/biocontainers/metabat2:2.15--h986a166_1'
     conda (params.conda ? "bioconda::metabat2=2.15" : null)
 
     input:
@@ -40,10 +40,24 @@ process METABAT2 {
     metabat2 $ioptions.args \\
         --inFile contigs.fasta.gz \\
         --abdFile $coverage \\
-        --outFile metabat2-${meta.id}.csv \\
-        --saveCls \\
-        --numThreads $task.cpus && \\
-    sed -i 's/\\t/,/' metabat2-${meta.id}.csv
+        --outFile metabat2-${meta.id} \\
+        --unbinned \\
+        --numThreads $task.cpus
+
+    # Make assignment file
+    for f in `ls *.fa`; do
+        bin=`echo \$f | cut -d'.' -f2`
+
+        if [[ "\$bin" =~ ^[0-9]+\$ ]]; then
+            grep '^>' \$f | cut -c2- \\
+                | awk -v b=\$bin '{print \$1","b}' \\
+                >> "metabat2-${meta.id}.csv"
+        else
+            grep '^>' \$f | cut -c2- \\
+                | awk -v b=\$bin '{print \$1","b"-"NR}' \\
+                >> "metabat2-${meta.id}.csv"
+        fi
+    done
 
     rm contigs.fasta.gz
 
